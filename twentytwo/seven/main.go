@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -10,67 +11,32 @@ import (
 
 type directory struct {
 	name     string
-	children map[string]directory
+	children map[string]*directory
 	fileSize int
 }
 
-var total int
+var total = 0
 
-var distance int
+var distance = math.MaxInt
 var closest int
 
 func main() {
-	commands := input.ReadInputFileToLines("input.txt")
-
-	total = 0
-
-	distance = 999999999999
+	outputLines := input.ReadInputFileToLines("input.txt")
 
 	rootDirectory := directory{
 		name:     "/",
-		children: map[string]directory{},
+		children: map[string]*directory{},
 		fileSize: 0,
 	}
 
-	treeStack := []*directory{&rootDirectory}
-	currentDirectory := treeStack[0]
+	directoryStack := []*directory{&rootDirectory}
 
-	for _, command := range commands[1:] {
-		if command[0] == '$' {
-			if command[2:4] == "cd" {
-				if command == "$ cd .." {
-					treeStack = treeStack[1:]
-					currentDirectory = treeStack[0]
-				} else {
-					subDirectory := currentDirectory.children[command[5:]]
-					treeStack = append([]*directory{&subDirectory}, treeStack...)
-					currentDirectory = treeStack[0]
-				}
-			}
-		} else {
-			if command[:3] == "dir" {
-				newDirectoryName := command[4:]
-				currentDirectory.children[newDirectoryName] = directory{
-					name:     newDirectoryName,
-					children: make(map[string]directory),
-					fileSize: 0,
-				}
-			} else {
-				fileSize, _ := strconv.Atoi(strings.Split(command, " ")[0])
-				for i := 1; i < len(treeStack); i++ {
-					mappedDirectory := treeStack[i].children[treeStack[i-1].name]
-					mappedDirectory.fileSize += fileSize
-					treeStack[i].children[treeStack[i-1].name] = mappedDirectory
-				}
-				treeStack[len(treeStack)-1].fileSize += fileSize
-			}
-		}
+	for _, outputLine := range outputLines[1:] {
+		directoryStack = handleOutput(outputLine, directoryStack)
 	}
 
 	under100k(rootDirectory)
 	fmt.Printf("Under 10k sum: %d\n", total)
-
-	fmt.Println()
 
 	totalDisk := 70000000
 	targetDisk := 30000000
@@ -80,12 +46,53 @@ func main() {
 	fmt.Printf("Filesize to delete: %d\n", closest)
 }
 
+func handleOutput(outputLine string, directoryStack []*directory) []*directory {
+	if outputLine[0] == '$' {
+		return handleCommand(outputLine, directoryStack)
+	}
+
+	return handleItem(outputLine, directoryStack)
+}
+
+func handleCommand(outputLine string, directoryStack []*directory) []*directory {
+	if outputLine[2:4] != "cd" {
+		return directoryStack
+	}
+
+	cdArg := outputLine[5:]
+
+	if cdArg == ".." {
+		return directoryStack[1:]
+	}
+
+	subDirectory := directoryStack[0].children[cdArg]
+	return append([]*directory{subDirectory}, directoryStack...)
+}
+
+func handleItem(outputLine string, directoryStack []*directory) []*directory {
+	if outputLine[:3] == "dir" {
+		newDirectoryName := outputLine[4:]
+		directoryStack[0].children[newDirectoryName] = &directory{
+			name:     newDirectoryName,
+			children: make(map[string]*directory),
+			fileSize: 0,
+		}
+		return directoryStack
+	}
+
+	fileSize, _ := strconv.Atoi(strings.Split(outputLine, " ")[0])
+	for i := 0; i < len(directoryStack); i++ {
+		directoryStack[i].fileSize += fileSize
+	}
+	return directoryStack
+}
+
 func under100k(dir directory) {
 	if dir.fileSize <= 100000 {
 		total += dir.fileSize
 	}
 	for _, c := range dir.children {
-		under100k(c)
+		under100k(*c)
 	}
 }
 
@@ -96,6 +103,6 @@ func closestToDiskNeeded(dir directory, diskNeeded int) {
 		closest = dir.fileSize
 	}
 	for _, c := range dir.children {
-		closestToDiskNeeded(c, diskNeeded)
+		closestToDiskNeeded(*c, diskNeeded)
 	}
 }
