@@ -53,7 +53,12 @@ func handleOutput(outputLine string, currentDirectory *directory) *directory {
 		return handleCommand(outputLine, currentDirectory)
 	}
 
-	handleItem(outputLine, currentDirectory)
+	if outputLine[:3] == "dir" {
+		handleDir(outputLine, currentDirectory)
+		return currentDirectory
+	}
+
+	handleFile(outputLine, currentDirectory)
 	return currentDirectory
 }
 
@@ -71,17 +76,17 @@ func handleCommand(outputLine string, currentDirectory *directory) *directory {
 	return currentDirectory.children[cdArg]
 }
 
-func handleItem(outputLine string, currentDirectory *directory) {
-	if outputLine[:3] == "dir" {
-		newDirectoryName := outputLine[4:]
-		currentDirectory.children[newDirectoryName] = &directory{
-			name:     newDirectoryName,
-			parent:   currentDirectory,
-			children: make(map[string]*directory),
-			fileSize: 0,
-		}
+func handleDir(outputLine string, currentDirectory *directory) {
+	newDirectoryName := outputLine[4:]
+	currentDirectory.children[newDirectoryName] = &directory{
+		name:     newDirectoryName,
+		parent:   currentDirectory,
+		children: make(map[string]*directory),
+		fileSize: 0,
 	}
+}
 
+func handleFile(outputLine string, currentDirectory *directory) {
 	fileSize, _ := strconv.Atoi(strings.Split(outputLine, " ")[0])
 	for {
 		currentDirectory.fileSize += fileSize
