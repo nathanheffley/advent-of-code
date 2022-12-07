@@ -11,6 +11,7 @@ import (
 
 type directory struct {
 	name     string
+	parent   *directory
 	children map[string]*directory
 	fileSize int
 }
@@ -25,14 +26,15 @@ func main() {
 
 	rootDirectory := directory{
 		name:     "/",
+		parent:   nil,
 		children: map[string]*directory{},
 		fileSize: 0,
 	}
 
-	directoryStack := []*directory{&rootDirectory}
+	currentDirectory := &rootDirectory
 
 	for _, outputLine := range outputLines[1:] {
-		directoryStack = handleOutput(outputLine, directoryStack)
+		currentDirectory = handleOutput(outputLine, currentDirectory)
 	}
 
 	under100k(rootDirectory)
@@ -46,45 +48,48 @@ func main() {
 	fmt.Printf("Filesize to delete: %d\n", closest)
 }
 
-func handleOutput(outputLine string, directoryStack []*directory) []*directory {
+func handleOutput(outputLine string, currentDirectory *directory) *directory {
 	if outputLine[0] == '$' {
-		return handleCommand(outputLine, directoryStack)
+		return handleCommand(outputLine, currentDirectory)
 	}
 
-	return handleItem(outputLine, directoryStack)
+	handleItem(outputLine, currentDirectory)
+	return currentDirectory
 }
 
-func handleCommand(outputLine string, directoryStack []*directory) []*directory {
+func handleCommand(outputLine string, currentDirectory *directory) *directory {
 	if outputLine[2:4] != "cd" {
-		return directoryStack
+		return currentDirectory
 	}
 
 	cdArg := outputLine[5:]
 
 	if cdArg == ".." {
-		return directoryStack[1:]
+		return currentDirectory.parent
 	}
 
-	subDirectory := directoryStack[0].children[cdArg]
-	return append([]*directory{subDirectory}, directoryStack...)
+	return currentDirectory.children[cdArg]
 }
 
-func handleItem(outputLine string, directoryStack []*directory) []*directory {
+func handleItem(outputLine string, currentDirectory *directory) {
 	if outputLine[:3] == "dir" {
 		newDirectoryName := outputLine[4:]
-		directoryStack[0].children[newDirectoryName] = &directory{
+		currentDirectory.children[newDirectoryName] = &directory{
 			name:     newDirectoryName,
+			parent:   currentDirectory,
 			children: make(map[string]*directory),
 			fileSize: 0,
 		}
-		return directoryStack
 	}
 
 	fileSize, _ := strconv.Atoi(strings.Split(outputLine, " ")[0])
-	for i := 0; i < len(directoryStack); i++ {
-		directoryStack[i].fileSize += fileSize
+	for {
+		currentDirectory.fileSize += fileSize
+		currentDirectory = currentDirectory.parent
+		if currentDirectory == nil {
+			break
+		}
 	}
-	return directoryStack
 }
 
 func under100k(dir directory) {
