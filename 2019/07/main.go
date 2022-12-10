@@ -59,5 +59,100 @@ func main() {
 	}
 
 	fmt.Println(maxSignal)
-	fmt.Println("(official answer for program: 225056)")
+	fmt.Println("(official answer for part 1: 225056)")
+
+	maxSignal = 0
+	for _, sequence := range helpers.Permutate([]int{5, 6, 7, 8, 9}) {
+		programResult := 0
+		panicAnswer(program, sequence, &programResult)
+		if programResult > maxSignal {
+			maxSignal = programResult
+		}
+	}
+	fmt.Println(maxSignal)
+	fmt.Println("(official answer for part 2: 14260332)")
+}
+
+func panicAnswer(program string, sequence []int, final *int) {
+	maxSignal := 0
+
+	// Eventually, the loops below will panic when you try to send the result
+	// to A but you've reached the end of the recursion. Channels are hard,
+	// so it's a lot easier to just catch the inevitable panic and write out
+	// the answer like this. YOLO.
+	defer func() {
+		if err := recover(); err != nil {
+			*final = maxSignal
+		}
+	}()
+
+	// A
+	inputA := make(chan int)
+	outputA := make(chan int)
+	go intcode.Execute(program, inputA, outputA)
+	inputA <- sequence[0]
+	inputA <- 0
+	result := <-outputA
+
+	// B
+	inputB := make(chan int)
+	outputB := make(chan int)
+	go intcode.Execute(program, inputB, outputB)
+	inputB <- sequence[1]
+	inputB <- result
+	result = <-outputB
+
+	// C
+	inputC := make(chan int)
+	outputC := make(chan int)
+	go intcode.Execute(program, inputC, outputC)
+	inputC <- sequence[2]
+	inputC <- result
+	result = <-outputC
+
+	// D
+	inputD := make(chan int)
+	outputD := make(chan int)
+	go intcode.Execute(program, inputD, outputD)
+	inputD <- sequence[3]
+	inputD <- result
+	result = <-outputD
+
+	// E
+	inputE := make(chan int)
+	outputE := make(chan int)
+	go intcode.Execute(program, inputE, outputE)
+	inputE <- sequence[4]
+	inputE <- result
+	result = <-outputE
+
+	if result > maxSignal {
+		maxSignal = result
+	}
+
+	for {
+		// A
+		inputA <- result
+		result = <-outputA
+
+		// B
+		inputB <- result
+		result = <-outputB
+
+		// C
+		inputC <- result
+		result = <-outputC
+
+		// D
+		inputD <- result
+		result = <-outputD
+
+		// E
+		inputE <- result
+		result = <-outputE
+
+		if result > maxSignal {
+			maxSignal = result
+		}
+	}
 }
