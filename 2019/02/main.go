@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
+
+	"github.com/nathanheffley/advent-of-code/intcode"
 )
 
 func main() {
@@ -13,7 +14,9 @@ func main() {
 	badInputBits[2] = "2"
 	fixedInput := strings.Join(badInputBits, ",")
 
-	result := Execute(fixedInput)
+	inc := make(chan int)
+	outc := make(chan int)
+	result, _ := intcode.Execute(fixedInput, inc, outc)
 	partOne := strings.SplitN(result, ",", 2)[0]
 
 	fmt.Printf("Part 1: %s\n", partOne)
@@ -26,7 +29,9 @@ Iterate:
 			badInputBits[2] = fmt.Sprintf("%d", verb)
 			fixedInput := strings.Join(badInputBits, ",")
 
-			result := Execute(fixedInput)
+			inc = make(chan int)
+			outc = make(chan int)
+			result, _ := intcode.Execute(fixedInput, inc, outc)
 			resultAnswer := strings.SplitN(result, ",", 2)[0]
 
 			if resultAnswer == "19690720" {
@@ -35,41 +40,4 @@ Iterate:
 			}
 		}
 	}
-}
-
-func Execute(program string) string {
-	strInts := strings.Split(program, ",")
-	ints := make([]int, len(strInts))
-	for i, strInt := range strInts {
-		ints[i], _ = strconv.Atoi(strInt)
-	}
-
-	for i := 0; i < len(ints); i += 4 {
-		command := ints[i]
-
-		if command == 99 {
-			break
-		}
-
-		arg1 := ints[i+1]
-		arg2 := ints[i+2]
-		arg3 := ints[i+3]
-
-		if arg1 >= len(ints) || arg2 >= len(ints) || arg3 >= len(ints) {
-			return ""
-		}
-
-		if command == 1 {
-			ints[arg3] = ints[arg1] + ints[arg2]
-		}
-
-		if command == 2 {
-			ints[arg3] = ints[arg1] * ints[arg2]
-		}
-	}
-
-	for i, int := range ints {
-		strInts[i] = fmt.Sprintf("%d", int)
-	}
-	return strings.Join(strInts, ",")
 }
