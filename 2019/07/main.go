@@ -12,7 +12,7 @@ func main() {
 
 	maxSignal := 0
 
-	for _, sequence := range helpers.Permutate[int]([]int{0, 1, 2, 3, 4}) {
+	for _, sequence := range helpers.Permutate([]int{0, 1, 2, 3, 4}) {
 		// A
 		input := make(chan int)
 		output := make(chan int)
