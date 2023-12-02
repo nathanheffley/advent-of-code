@@ -6,6 +6,14 @@ func Check(e error) {
 	}
 }
 
+func Sum(nums []int) int {
+	sum := 0
+	for _, num := range nums {
+		sum += num
+	}
+	return sum
+}
+
 func Permutate[T interface{}](arr []T) [][]T {
 	var helper func([]T, int)
 	res := [][]T{}
