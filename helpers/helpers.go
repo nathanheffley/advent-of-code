@@ -6,7 +6,15 @@ func Check(e error) {
 	}
 }
 
-func Sum(nums []int) int {
+func SumSlice(nums []int) int {
+	sum := 0
+	for _, num := range nums {
+		sum += num
+	}
+	return sum
+}
+
+func SumMap[K comparable](nums map[K]int) int {
 	sum := 0
 	for _, num := range nums {
 		sum += num

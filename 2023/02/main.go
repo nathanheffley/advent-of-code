@@ -45,6 +45,6 @@ func main() {
 		totalPower += power
 	}
 
-	fmt.Printf("Part 1 Total: %d\n", helpers.Sum(possibleGameIds))
+	fmt.Printf("Part 1 Total: %d\n", helpers.SumSlice(possibleGameIds))
 	fmt.Printf("Part 2 Total: %d\n", totalPower)
 }

@@ -25,5 +25,5 @@ func main() {
 		helpers.Check(err)
 	}
 
-	fmt.Println(helpers.Sum(numbers))
+	fmt.Println(helpers.SumSlice(numbers))
 }

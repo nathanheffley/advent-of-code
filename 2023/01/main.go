@@ -43,8 +43,8 @@ func main() {
 		part2Nums = append(part2Nums, part2Num)
 	}
 
-	fmt.Printf("Part 1 Sum: %d\n", helpers.Sum(part1Nums))
-	fmt.Printf("Part 2 Sum: %d\n", helpers.Sum(part2Nums))
+	fmt.Printf("Part 1 Sum: %d\n", helpers.SumSlice(part1Nums))
+	fmt.Printf("Part 2 Sum: %d\n", helpers.SumSlice(part2Nums))
 }
 
 func condenseNumber(num string) string {
