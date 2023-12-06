@@ -1,5 +1,10 @@
 package helpers
 
+import (
+	"strconv"
+	"strings"
+)
+
 func Check(e error) {
 	if e != nil {
 		panic(e)
@@ -48,4 +53,18 @@ func Permutate[T interface{}](arr []T) [][]T {
 	}
 	helper(arr, len(arr))
 	return res
+}
+
+func StringToNumSlice(s string) []int {
+	var nums []int
+	numStrings := strings.Split(s, " ")
+	for _, numString := range numStrings {
+		if numString == "" {
+			continue
+		}
+		num, err := strconv.Atoi(numString)
+		Check(err)
+		nums = append(nums, num)
+	}
+	return nums
 }

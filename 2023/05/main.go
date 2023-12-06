@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"strconv"
 	"strings"
 
 	"github.com/nathanheffley/advent-of-code/helpers"
@@ -24,7 +23,7 @@ func main() {
 	humidityToLocationMapping, _ := parseMapping(lines, currentParseLine)
 
 	seedString := strings.Split(lines[0], ": ")[1]
-	seeds := stringToNumSlice(seedString)
+	seeds := helpers.StringToNumSlice(seedString)
 
 	part1MinSeed := math.MaxInt64
 	for _, seed := range seeds {
@@ -61,17 +60,6 @@ func main() {
 	fmt.Printf("Part 2: %d\n", part2MinSeed)
 }
 
-func stringToNumSlice(s string) []int {
-	var nums []int
-	numStrings := strings.Split(s, " ")
-	for _, numString := range numStrings {
-		num, err := strconv.Atoi(numString)
-		helpers.Check(err)
-		nums = append(nums, num)
-	}
-	return nums
-}
-
 func moveSeed(seed int, mapping map[[2]int]int) int {
 	for range mapping {
 		for seedRange, delta := range mapping {
@@ -89,7 +77,7 @@ func parseMapping(lines []string, startLine int) (map[[2]int]int, int) {
 		if line == "" {
 			return mapping, startLine + i + 2
 		}
-		mappingNums := stringToNumSlice(line)
+		mappingNums := helpers.StringToNumSlice(line)
 		destinationNum := mappingNums[0]
 		sourceNum := mappingNums[1]
 		length := mappingNums[2]
