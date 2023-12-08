@@ -10,32 +10,34 @@ import (
 	"github.com/nathanheffley/advent-of-code/input"
 )
 
+var handValues = map[string]int{
+	"high card":       0,
+	"one pair":        1,
+	"two pair":        2,
+	"three of a kind": 3,
+	"full house":      4,
+	"four of a kind":  5,
+	"five of a kind":  6,
+}
+
+var cardValues = map[rune]int{
+	'2': 2,
+	'3': 3,
+	'4': 4,
+	'5': 5,
+	'6': 6,
+	'7': 7,
+	'8': 8,
+	'9': 9,
+	'T': 10,
+	'J': 11,
+	'Q': 12,
+	'K': 13,
+	'A': 14,
+}
+
 func main() {
 	lines := input.ReadInputFileToLines("input.txt")
-
-	cardValues := make(map[rune]int, 13)
-	cardValues['2'] = 2
-	cardValues['3'] = 3
-	cardValues['4'] = 4
-	cardValues['5'] = 5
-	cardValues['6'] = 6
-	cardValues['7'] = 7
-	cardValues['8'] = 8
-	cardValues['9'] = 9
-	cardValues['T'] = 10
-	cardValues['J'] = 11
-	cardValues['Q'] = 12
-	cardValues['K'] = 13
-	cardValues['A'] = 14
-
-	handValues := make(map[string]int, 7)
-	handValues["high card"] = 0
-	handValues["one pair"] = 1
-	handValues["two pair"] = 2
-	handValues["three of a kind"] = 3
-	handValues["full house"] = 4
-	handValues["four of a kind"] = 5
-	handValues["five of a kind"] = 6
 
 	handBids := make(map[string]int)
 	var hands []string
@@ -51,109 +53,168 @@ func main() {
 		hands = append(hands, hand)
 	}
 
+	// No Jokers
 	sort.Slice(hands, func(i, j int) bool {
-		// I
-		iMap := make(map[rune]int)
-		for _, r := range hands[i] {
-			iMap[r]++
-		}
-
-		iHandType := "high card"
-		iHandHasPair := false
-		iHandHasThree := false
-		for _, v := range iMap {
-			if v == 5 {
-				iHandType = "five of a kind"
-				break
-			}
-			if v == 4 {
-				iHandType = "four of a kind"
-				break
-			}
-			if v == 3 {
-				iHandHasThree = true
-				continue
-			}
-			if v == 2 {
-				if iHandHasPair {
-					iHandType = "two pair"
-					iHandHasPair = false
-					break
-				}
-				iHandHasPair = true
-				continue
-			}
-		}
-		if iHandHasThree && iHandHasPair {
-			iHandType = "full house"
-		} else if iHandHasThree {
-			iHandType = "three of a kind"
-		} else if iHandHasPair {
-			iHandType = "one pair"
-		}
-		iHandValue := handValues[iHandType]
-
-		// J
-		jMap := make(map[rune]int)
-		for _, r := range hands[j] {
-			jMap[r]++
-		}
-
-		jHandType := "high card"
-		jHandHasPair := false
-		jHandHasThree := false
-		for _, v := range jMap {
-			if v == 5 {
-				jHandType = "five of a kind"
-				break
-			}
-			if v == 4 {
-				jHandType = "four of a kind"
-				break
-			}
-			if v == 3 {
-				jHandHasThree = true
-				continue
-			}
-			if v == 2 {
-				if jHandHasPair {
-					jHandType = "two pair"
-					jHandHasPair = false
-					break
-				}
-				jHandHasPair = true
-				continue
-			}
-		}
-		if jHandHasThree && jHandHasPair {
-			jHandType = "full house"
-		} else if jHandHasThree {
-			jHandType = "three of a kind"
-		} else if jHandHasPair {
-			jHandType = "one pair"
-		}
-		jHandValue := handValues[jHandType]
-
-		if iHandValue != jHandValue {
-			return iHandValue < jHandValue
-		}
-
-		// Tie-breaker
-		for index, ir := range hands[i] {
-			jr := rune(hands[j][index])
-			if ir != jr {
-				return cardValues[ir] < cardValues[jr]
-			}
-		}
-
-		return false
+		return handSortFunction(hands[i], hands[j], getHandValue)
 	})
 
-	var scores []int
+	var part1Scores []int
 	for i, hand := range hands {
-		scores = append(scores, handBids[hand]*(i+1))
+		part1Scores = append(part1Scores, handBids[hand]*(i+1))
 	}
 
-	fmt.Printf("Part 1: %d\n", helpers.SumSlice(scores))
-	// fmt.Printf("Part 2: %d\n", len(part2WinningTimes))
+	// With Jokers
+	cardValues['J'] = 0
+
+	sort.Slice(hands, func(i, j int) bool {
+		return handSortFunction(hands[i], hands[j], getJokerHandValue)
+	})
+
+	var part2Scores []int
+	for i, hand := range hands {
+		part2Scores = append(part2Scores, handBids[hand]*(i+1))
+	}
+
+	fmt.Printf("Part 1 Total: %d\n", helpers.SumSlice(part1Scores))
+	fmt.Printf("Part 2 Total: %d\n", helpers.SumSlice(part2Scores))
+}
+
+func handSortFunction(a string, b string, handValueCalculator func(hand string) int) bool {
+	iHandValue := handValueCalculator(a)
+	jHandValue := handValueCalculator(b)
+
+	if iHandValue != jHandValue {
+		return iHandValue < jHandValue
+	}
+
+	// Tie-breaker
+	for index, ir := range a {
+		jr := rune(b[index])
+		if ir != jr {
+			return cardValues[ir] < cardValues[jr]
+		}
+	}
+
+	return false
+}
+
+func GetHandType(hand string) string {
+	handMap := make(map[rune]int)
+	for _, r := range hand {
+		handMap[r]++
+	}
+
+	if len(handMap) == 1 {
+		return "five of a kind"
+	}
+
+	if len(handMap) == 2 {
+		for _, v := range handMap {
+			if v == 4 {
+				return "four of a kind"
+			}
+			if v == 3 {
+				return "full house"
+			}
+		}
+	}
+
+	if len(handMap) == 3 {
+		for _, v := range handMap {
+			if v == 3 {
+				return "three of a kind"
+			}
+		}
+		return "two pair"
+	}
+
+	if len(handMap) == 4 {
+		return "one pair"
+	}
+
+	return "high card"
+}
+
+func getHandValue(hand string) int {
+	return handValues[GetHandType(hand)]
+}
+
+func GetJokerHandType(hand string) string {
+	handMap := make(map[rune]int)
+	for _, r := range hand {
+		handMap[r]++
+	}
+
+	jokerCount := 0
+	for c, v := range handMap {
+		if c == 'J' {
+			jokerCount = v
+			break
+		}
+	}
+
+	if len(handMap) == 1 {
+		return "five of a kind"
+	}
+
+	if len(handMap) == 2 {
+		if jokerCount != 0 {
+			return "five of a kind"
+		}
+
+		for c, v := range handMap {
+			if c == 'J' {
+				continue
+			}
+			if v == 4 {
+				return "four of a kind"
+			}
+			if v == 3 {
+				return "full house"
+			}
+		}
+	}
+
+	if len(handMap) == 3 {
+		if jokerCount == 3 {
+			return "four of a kind"
+		}
+		for c, v := range handMap {
+			if c == 'J' {
+				continue
+			}
+			if v == 3 && jokerCount == 1 {
+				return "four of a kind"
+			}
+			if v == 3 {
+				return "three of a kind"
+			}
+			if v == 2 && jokerCount == 2 {
+				return "four of a kind"
+			}
+			if v == 2 && jokerCount == 1 {
+				return "full house"
+			}
+		}
+		return "two pair"
+	}
+
+	if len(handMap) == 4 {
+		if jokerCount != 0 {
+			return "three of a kind"
+		}
+		return "one pair"
+	}
+
+	if len(handMap) == 5 {
+		if jokerCount != 0 {
+			return "one pair"
+		}
+	}
+
+	return "high card"
+}
+
+func getJokerHandValue(hand string) int {
+	return handValues[GetJokerHandType(hand)]
 }
