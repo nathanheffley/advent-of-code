@@ -11,7 +11,7 @@ func main() {
 	lines := input.ReadInputFileToLines("input.txt")
 	var inputs [][]int
 	for _, line := range lines {
-		inputs = append(inputs, helpers.StringToNumSlice(line))
+		inputs = append(inputs, helpers.StringToNumSlice(line, " "))
 	}
 
 	part1Total := 0

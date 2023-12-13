@@ -15,8 +15,8 @@ func main() {
 	timeLine := lines[0][5:]
 	distanceLine := lines[1][9:]
 
-	times := helpers.StringToNumSlice(timeLine)
-	distances := helpers.StringToNumSlice(distanceLine)
+	times := helpers.StringToNumSlice(timeLine, " ")
+	distances := helpers.StringToNumSlice(distanceLine, " ")
 
 	part2TimeLine := strings.ReplaceAll(timeLine, " ", "")
 	part2DistanceLine := strings.ReplaceAll(distanceLine, " ", "")

@@ -23,7 +23,7 @@ func main() {
 	humidityToLocationMapping, _ := parseMapping(lines, currentParseLine)
 
 	seedString := strings.Split(lines[0], ": ")[1]
-	seeds := helpers.StringToNumSlice(seedString)
+	seeds := helpers.StringToNumSlice(seedString, " ")
 
 	part1MinSeed := math.MaxInt64
 	for _, seed := range seeds {
@@ -77,7 +77,7 @@ func parseMapping(lines []string, startLine int) (map[[2]int]int, int) {
 		if line == "" {
 			return mapping, startLine + i + 2
 		}
-		mappingNums := helpers.StringToNumSlice(line)
+		mappingNums := helpers.StringToNumSlice(line, " ")
 		destinationNum := mappingNums[0]
 		sourceNum := mappingNums[1]
 		length := mappingNums[2]

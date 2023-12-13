@@ -55,9 +55,9 @@ func Permutate[T interface{}](arr []T) [][]T {
 	return res
 }
 
-func StringToNumSlice(s string) []int {
+func StringToNumSlice(s string, separator string) []int {
 	var nums []int
-	numStrings := strings.Split(s, " ")
+	numStrings := strings.Split(s, separator)
 	for _, numString := range numStrings {
 		if numString == "" {
 			continue
