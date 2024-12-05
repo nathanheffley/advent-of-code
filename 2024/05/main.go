@@ -14,8 +14,7 @@ import (
 func main() {
 	lines := input.ReadInputFileToLines("input.txt")
 
-	keyBeforeValuesRules := make(map[string][]string)
-	keyAfterValuesRules := make(map[string][]string)
+	rules := make(map[string][]string)
 
 	updates := make([][]string, 0)
 
@@ -29,15 +28,10 @@ func main() {
 		if findingRules {
 			parts := strings.Split(line, "|")
 
-			if keyBeforeValuesRules[parts[0]] == nil {
-				keyBeforeValuesRules[parts[0]] = []string{}
+			if rules[parts[0]] == nil {
+				rules[parts[0]] = []string{}
 			}
-			keyBeforeValuesRules[parts[0]] = append(keyBeforeValuesRules[parts[0]], parts[1])
-
-			if keyAfterValuesRules[parts[1]] == nil {
-				keyAfterValuesRules[parts[1]] = []string{}
-			}
-			keyAfterValuesRules[parts[1]] = append(keyAfterValuesRules[parts[1]], parts[0])
+			rules[parts[0]] = append(rules[parts[0]], parts[1])
 		} else {
 			updates = append(updates, strings.Split(line, ","))
 		}
@@ -50,14 +44,7 @@ checkUpdate:
 	for _, update := range updates {
 		for i, key := range update {
 			for _, valBefore := range update[:i] {
-				if checkRuleOrder(keyBeforeValuesRules, key, valBefore) {
-					invalidUpdates = append(invalidUpdates, update)
-					continue checkUpdate
-				}
-			}
-
-			for _, valAfter := range update[i+1:] {
-				if checkRuleOrder(keyAfterValuesRules, key, valAfter) {
+				if checkRuleOrder(rules, key, valBefore) {
 					invalidUpdates = append(invalidUpdates, update)
 					continue checkUpdate
 				}
@@ -74,7 +61,7 @@ checkUpdate:
 	invalidAnswer := 0
 	for _, update := range invalidUpdates {
 		sort.Slice(update, func(i, j int) bool {
-			return checkRuleOrder(keyBeforeValuesRules, update[i], update[j])
+			return checkRuleOrder(rules, update[i], update[j])
 		})
 		invalidAnswer += getMiddleNumber(update)
 	}
