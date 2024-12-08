@@ -30,8 +30,10 @@ func main() {
 	}
 
 	antinodePositions := make(map[pos]bool, 0)
+	superAntinodePositions := make(map[pos]bool, 0)
 	for _, positions := range antennas {
 		for i, p1 := range positions {
+			superAntinodePositions[p1] = true
 			for _, p2 := range positions[i+1:] {
 				yDistance := int(math.Abs(float64(p1.y - p2.y)))
 				xDistance := int(math.Abs(float64(p1.x - p2.x)))
@@ -57,20 +59,30 @@ func main() {
 				}
 
 				p1AntinodeX := p1.x + p1AntinodeXDistance
-				p2AntinodeX := p2.x + p2AntinodeXDistance
 				p1AntinodeY := p1.y + p1AntinodeYDistance
-				p2AntinodeY := p2.y + p2AntinodeYDistance
-
 				if p1AntinodeX >= 0 && p1AntinodeX < mapWidth && p1AntinodeY >= 0 && p1AntinodeY < mapHeight {
 					antinodePositions[pos{p1AntinodeX, p1AntinodeY}] = true
 				}
+				for p1AntinodeX >= 0 && p1AntinodeX < mapWidth && p1AntinodeY >= 0 && p1AntinodeY < mapHeight {
+					superAntinodePositions[pos{p1AntinodeX, p1AntinodeY}] = true
+					p1AntinodeX += p1AntinodeXDistance
+					p1AntinodeY += p1AntinodeYDistance
+				}
 
+				p2AntinodeX := p2.x + p2AntinodeXDistance
+				p2AntinodeY := p2.y + p2AntinodeYDistance
 				if p2AntinodeX >= 0 && p2AntinodeX < mapWidth && p2AntinodeY >= 0 && p2AntinodeY < mapHeight {
 					antinodePositions[pos{p2AntinodeX, p2AntinodeY}] = true
+				}
+				for p2AntinodeX >= 0 && p2AntinodeX < mapWidth && p2AntinodeY >= 0 && p2AntinodeY < mapHeight {
+					superAntinodePositions[pos{p2AntinodeX, p2AntinodeY}] = true
+					p2AntinodeX += p2AntinodeXDistance
+					p2AntinodeY += p2AntinodeYDistance
 				}
 			}
 		}
 	}
 
 	fmt.Printf("Antinode count: %d\n", len(antinodePositions))
+	fmt.Printf("Super antinode count: %d\n", len(superAntinodePositions))
 }
