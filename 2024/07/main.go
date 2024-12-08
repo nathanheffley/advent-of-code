@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/nathanheffley/advent-of-code/input"
 )
 
 func main() {
 	lines := input.ReadInputFileToLines("input.txt")
+
+	start := time.Now()
 
 	validTotals := 0
 	part2ValidTotals := 0
@@ -32,6 +35,9 @@ func main() {
 
 	fmt.Printf("Part 1: %d\n", validTotals)
 	fmt.Printf("Part 2: %d\n", part2ValidTotals)
+
+	elapsed := time.Since(start)
+	fmt.Printf("(took %s)\n", elapsed)
 }
 
 func valid(nums []int) (bool, bool) {
@@ -48,16 +54,22 @@ func valid(nums []int) (bool, bool) {
 		for j := 0; j < len(results); j++ {
 			newResults = append(newResults, results[j]+nums[i])
 			newResults = append(newResults, results[j]*nums[i])
-
 		}
 		results = newResults
 
 		newPart2Results := make([]int, 0)
 		for j := 0; j < len(part2Results); j++ {
 			newPart2Results = append(newPart2Results, part2Results[j]+nums[i])
-			newPart2Results = append(newPart2Results, part2Results[j]*nums[i])
+
+			mul := part2Results[j] * nums[i]
+			if mul <= nums[0] {
+				newPart2Results = append(newPart2Results, mul)
+			}
+
 			concatenated, _ := strconv.Atoi(fmt.Sprintf("%d%d", part2Results[j], nums[i]))
-			newPart2Results = append(newPart2Results, concatenated)
+			if concatenated <= nums[0] {
+				newPart2Results = append(newPart2Results, concatenated)
+			}
 		}
 		part2Results = newPart2Results
 	}

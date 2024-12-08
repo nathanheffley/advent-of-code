@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nathanheffley/advent-of-code/input"
 )
@@ -13,6 +14,8 @@ type point struct {
 
 func main() {
 	lines := input.ReadInputFileToLines("input.txt")
+
+	start := time.Now()
 
 	var guardX, guardY int
 	guardMap := make([][]byte, len(lines))
@@ -44,6 +47,9 @@ func main() {
 		guardMap[p.y][p.x] = '.'
 	}
 	fmt.Printf("Loop options: %d\n", loopOptions)
+
+	elapsed := time.Since(start)
+	fmt.Printf("(took %s)\n", elapsed)
 }
 
 func walkMap(guardMap [][]byte, guardX int, guardY int) (bool, map[string]point) {
