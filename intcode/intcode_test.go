@@ -7,7 +7,7 @@ import (
 var input chan int
 var output chan int
 
-func TestExecuteBasic(t *testing.T) {
+func TestExecuteDay2Demos(t *testing.T) {
 	input = make(chan int)
 	output = make(chan int)
 	program := "1,9,10,3,2,3,11,0,99,30,40,50"
