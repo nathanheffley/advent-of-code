@@ -19,6 +19,14 @@ func SumSlice(nums []int) int {
 	return sum
 }
 
+func MultSlice(nums []int) int {
+	mult := 1
+	for _, num := range nums {
+		mult *= num
+	}
+	return mult
+}
+
 func SumMap[K comparable](nums map[K]int) int {
 	sum := 0
 	for _, num := range nums {
