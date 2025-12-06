@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	lines := input.ReadInputFileToLines("input.test.txt")
+	lines := input.ReadInputFileToLines("input.txt")
 
 	total := 0
 	c := make(chan int)

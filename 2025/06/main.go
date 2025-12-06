@@ -17,7 +17,7 @@ type Problem struct {
 }
 
 func main() {
-	lines := input.ReadInputFileToLines("input.test.txt")
+	lines := input.ReadInputFileToLines("input.txt")
 
 	numberLinesData := lines[:len(lines)-1]
 	operatorLineData := lines[len(lines)-1]

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	lines := input.ReadInputFileToLines("input.test.txt")
+	lines := input.ReadInputFileToLines("input.txt")
 
 	groups := [][]string{}
 	currentGroup := []string{}

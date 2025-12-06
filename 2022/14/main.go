@@ -19,7 +19,7 @@ func (c *coordinate) key() string {
 }
 
 func main() {
-	data := input.ReadInputFileToLines("input.test.txt")
+	data := input.ReadInputFileToLines("input.txt")
 
 	solids := make(map[string]string)
 	solidsWithFloor := make(map[string]string)

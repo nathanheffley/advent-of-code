@@ -16,7 +16,7 @@ type space struct {
 }
 
 func main() {
-	lines := input.ReadInputFileToLines("input.test.txt")
+	lines := input.ReadInputFileToLines("input.txt")
 
 	start := point{0, 0}
 	end := point{0, 0}
