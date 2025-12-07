@@ -3,20 +3,17 @@ package main
 import (
 	"fmt"
 
+	"github.com/nathanheffley/advent-of-code/helpers"
 	"github.com/nathanheffley/advent-of-code/input"
 )
-
-type Beam struct {
-	Count int
-}
 
 func main() {
 	lines := input.ReadInputFileToLines("input.txt")
 
-	beams := make(map[int]Beam, 0)
+	beams := make(map[int]int, 0)
 	for i := 0; i < len(lines[0]); i++ {
 		if lines[0][i] == 'S' {
-			beams[i] = Beam{Count: 1}
+			beams[i] = 1
 			break
 		}
 	}
@@ -28,15 +25,15 @@ func main() {
 				splits++
 
 				if _, exists := beams[i-1]; exists {
-					beams[i-1] = Beam{Count: beams[i-1].Count + beam.Count}
+					beams[i-1] = beams[i-1] + beam
 				} else {
-					beams[i-1] = Beam{Count: beam.Count}
+					beams[i-1] = beam
 				}
 
 				if _, exists := beams[i+1]; exists {
-					beams[i+1] = Beam{Count: beams[i+1].Count + beam.Count}
+					beams[i+1] = beams[i+1] + beam
 				} else {
-					beams[i+1] = Beam{Count: beam.Count}
+					beams[i+1] = beam
 				}
 
 				delete(beams, i)
@@ -45,11 +42,5 @@ func main() {
 	}
 
 	fmt.Printf("Number of splits: %d\n", splits)
-
-	timelines := 0
-	for _, beam := range beams {
-		timelines += beam.Count
-	}
-
-	fmt.Printf("Number of timelines: %d\n", timelines)
+	fmt.Printf("Number of timelines: %d\n", helpers.SumMap(beams))
 }
